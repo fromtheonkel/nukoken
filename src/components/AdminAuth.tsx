@@ -4,9 +4,6 @@ import { useState, useEffect, ReactNode } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
-// Wachtwoord - wijzig dit naar je eigen wachtwoord
-const ADMIN_PASSWORD = 'nukoken2024'
-
 interface AdminAuthProps {
   children: ReactNode
 }
@@ -16,6 +13,7 @@ export default function AdminAuth({ children }: AdminAuthProps) {
   const [isChecking, setIsChecking] = useState(true)
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     // Check of er al een sessie is
@@ -26,16 +24,29 @@ export default function AdminAuth({ children }: AdminAuthProps) {
     setIsChecking(false)
   }, [])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setIsSubmitting(true)
 
-    if (password === ADMIN_PASSWORD) {
-      sessionStorage.setItem('nukoken_admin_auth', 'true')
-      setIsAuthenticated(true)
-    } else {
-      setError('Onjuist wachtwoord')
-      setPassword('')
+    try {
+      const response = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      })
+
+      if (response.ok) {
+        sessionStorage.setItem('nukoken_admin_auth', 'true')
+        setIsAuthenticated(true)
+      } else {
+        setError('Onjuist wachtwoord')
+        setPassword('')
+      }
+    } catch {
+      setError('Kon niet verbinden met server')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -93,9 +104,10 @@ export default function AdminAuth({ children }: AdminAuthProps) {
 
               <button
                 type="submit"
-                className="w-full px-4 py-3 bg-teal-600 text-white font-medium rounded-lg hover:bg-teal-700 transition-colors"
+                disabled={isSubmitting}
+                className="w-full px-4 py-3 bg-teal-600 text-white font-medium rounded-lg hover:bg-teal-700 transition-colors disabled:opacity-50"
               >
-                Inloggen
+                {isSubmitting ? 'Bezig...' : 'Inloggen'}
               </button>
             </form>
           </div>

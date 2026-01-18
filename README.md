@@ -61,7 +61,7 @@ nukoken-website/
 ## 🔐 Admin Access
 
 - URL: `/admin`
-- Password: `nukoken2025`
+- Stel `ADMIN_PASSWORD` in als environment variable in Vercel
 
 ## 📖 API Endpoints
 
