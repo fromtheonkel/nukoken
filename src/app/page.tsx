@@ -37,9 +37,11 @@ export default async function HomePage() {
     <div className="max-w-2xl">
       {/* 🆕 Logo toevoegen */}
       <div className="w-20 h-20 mx-auto mb-6">
-        <img
+        <Image
           src="/images/nukoken-logo.svg"
           alt="NuKoken Logo"
+          width={80}
+          height={80}
           className="w-full h-full object-contain drop-shadow-lg"
         />
       </div>

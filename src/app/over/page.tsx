@@ -1,6 +1,5 @@
 // src/app/over/page.tsx
 import Header from '@/components/Header'
-import Footer from '@/components/Footer'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -19,9 +18,11 @@ export default function OverPage() {
           {/* Page Header */}
           <div className="text-center mb-16">
             <div className="w-24 h-24 mx-auto mb-6">
-              <img
+              <Image
                 src="/images/nukoken-logo.svg"
                 alt="NuKoken Logo"
+                width={96}
+                height={96}
                 className="w-full h-full object-contain"
               />
             </div>
@@ -54,8 +55,8 @@ export default function OverPage() {
                   </div>
                 </div>
                 <p className="text-gray-700">
-                  Geen wordpress, dat zou echt te laf zijn. Gewoon lekker vibe coden en het begon met een beetje HTML en CSS. Een simpele lijst met recepten, wat styling, klaar toch? 
-                  Maar toen dacht ik: "Het zou handig zijn als ik kon zoeken..."
+                  Geen wordpress, dat zou echt te laf zijn. Gewoon lekker vibe coden en het begon met een beetje HTML en CSS. Een simpele lijst met recepten, wat styling, klaar toch?
+                  Maar toen dacht ik: &quot;Het zou handig zijn als ik kon zoeken...&quot;
                 </p>
               </div>
 
@@ -71,8 +72,8 @@ export default function OverPage() {
                   </div>
                 </div>
                 <p className="text-gray-700">
-                  Oké, dus JavaScript erbij. Een zoekbalk, wat filters op categorie en bereidingstijd. 
-                  Werkte prima! Maar toen dacht ik: "Een database zou eigenlijk handiger zijn..."
+                  Oké, dus JavaScript erbij. Een zoekbalk, wat filters op categorie en bereidingstijd.
+                  Werkte prima! Maar toen dacht ik: &quot;Een database zou eigenlijk handiger zijn...&quot;
                 </p>
               </div>
 
@@ -88,8 +89,8 @@ export default function OverPage() {
                   </div>
                 </div>
                 <p className="text-gray-700">
-                  Nu wordt het serieus! Next.js voor server-side rendering, een PostgreSQL database 
-                  via Neon, TypeScript voor type safety. Plots had ik een "echte" web applicatie...
+                  Nu wordt het serieus! Next.js voor server-side rendering, een PostgreSQL database
+                  via Neon, TypeScript voor type safety. Plots had ik een &quot;echte&quot; web applicatie...
                 </p>
               </div>
 

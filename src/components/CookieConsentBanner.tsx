@@ -255,6 +255,6 @@ export default function CookieConsentBanner() {
 // Extend Window interface for TypeScript
 declare global {
   interface Window {
-    dataLayer: any[]
+    dataLayer: Record<string, unknown>[]
   }
 }

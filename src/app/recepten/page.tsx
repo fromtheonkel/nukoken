@@ -1,6 +1,5 @@
 import { getAllRecipes } from '@/lib/database'
 import Header from '@/components/Header'
-import Footer from '@/components/Footer'
 import SearchAndFilters from '@/components/SearchAndFilters'
 
 export const revalidate = 3600

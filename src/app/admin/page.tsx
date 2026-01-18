@@ -138,7 +138,7 @@ export default function AdminPage() {
                   href={`/recepten/${createdRecipe.slug}`}
                   className="mt-2 inline-block text-teal-600 hover:text-teal-700 font-medium"
                 >
-                  Bekijk "{createdRecipe.title}" →
+                  Bekijk &quot;{createdRecipe.title}&quot; →
                 </Link>
               )}
             </div>

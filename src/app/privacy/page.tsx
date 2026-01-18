@@ -41,7 +41,7 @@ export default function PrivacyPage() {
               <ul className="list-disc pl-6 mb-4 text-gray-700">
                 <li>IP-adres (geanonimiseerd)</li>
                 <li>Browsertype en versie</li>
-                <li>Bezochte pagina's en duur van bezoek</li>
+                <li>Bezochte pagina&apos;s en duur van bezoek</li>
                 <li>Referrer URL (waar je vandaan komt)</li>
                 <li>Apparaattype (desktop, tablet, mobiel)</li>
                 <li>Algemene locatie (land/regio)</li>

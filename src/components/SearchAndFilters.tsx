@@ -2,20 +2,29 @@
 'use client'
 
 import { useState, useMemo, useCallback } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import RecipeCard from './RecipeCard'
 import { Recipe } from '@/types/recipe'
 import { categories, difficulties } from '@/lib/constants'
 
+interface SearchParams {
+  search?: string
+  category?: string
+  difficulty?: string
+  tag?: string
+  ingredient?: string
+  sort?: string
+  servings?: string
+  maxTime?: string
+}
+
 interface SearchAndFiltersProps {
   recipes: Recipe[]
-  searchParams: any
+  searchParams: SearchParams
 }
 
 export default function SearchAndFilters({ recipes, searchParams }: SearchAndFiltersProps) {
   const router = useRouter()
-  const urlSearchParams = useSearchParams()
   
   // State voor filters
   const [searchTerm, setSearchTerm] = useState(searchParams.search || '')
@@ -39,6 +48,7 @@ export default function SearchAndFilters({ recipes, searchParams }: SearchAndFil
     return Array.from(tags).sort()
   }, [recipes])
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const allIngredients = useMemo(() => {
     const ingredients = new Set<string>()
     recipes.forEach(recipe => {
@@ -57,7 +67,7 @@ export default function SearchAndFilters({ recipes, searchParams }: SearchAndFil
 
   // Gefilterde en gesorteerde recepten
   const filteredRecipes = useMemo(() => {
-    let filtered = recipes.filter(recipe => {
+    const filtered = recipes.filter(recipe => {
       // Search term filter
       if (searchTerm) {
         const search = searchTerm.toLowerCase()
@@ -362,7 +372,7 @@ export default function SearchAndFilters({ recipes, searchParams }: SearchAndFil
             <div className="text-gray-600">
               <span className="font-medium">{filteredRecipes.length}</span> recepten gevonden
               {searchTerm && (
-                <span> voor "{searchTerm}"</span>
+                <span> voor &quot;{searchTerm}&quot;</span>
               )}
             </div>
             
@@ -394,7 +404,7 @@ export default function SearchAndFilters({ recipes, searchParams }: SearchAndFil
               <div className="flex flex-wrap gap-2">
                 {searchTerm && (
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-orange-100 text-orange-800">
-                    Zoek: "{searchTerm}"
+                    Zoek: &quot;{searchTerm}&quot;
                     <button
                       onClick={() => setSearchTerm('')}
                       className="ml-2 hover:text-orange-900"

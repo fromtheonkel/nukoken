@@ -124,7 +124,7 @@ export default function DisclaimerPage() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div className="bg-blue-50 p-4 rounded-lg">
-                  <h3 className="font-medium text-blue-900 mb-2">👶 Baby's & Peuters</h3>
+                  <h3 className="font-medium text-blue-900 mb-2">👶 Baby&apos;s & Peuters</h3>
                   <p className="text-blue-800 text-sm">
                     Raadpleeg altijd een kinderarts of consultatiebureau voordat je nieuwe voeding introduceert
                   </p>
@@ -190,8 +190,8 @@ export default function DisclaimerPage() {
               </div>
 
               <p className="text-gray-700 italic">
-                Door gebruik te maken van onze recepten erkent u dat koken inherente risico's met zich meebrengt 
-                en dat u deze risico's voor eigen rekening neemt.
+                Door gebruik te maken van onze recepten erkent u dat koken inherente risico&apos;s met zich meebrengt
+                en dat u deze risico&apos;s voor eigen rekening neemt.
               </p>
             </section>
 
