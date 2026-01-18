@@ -12,21 +12,26 @@
     "db:reset": "echo 'Drop and recreate tables if needed'"
   },
   "dependencies": {
+    "@types/nodemailer": "^6.4.17",
     "@vercel/postgres": "^0.10.0",
+    "dotenv": "^17.2.1",
     "lucide-react": "^0.526.0",
     "next": "15.4.4",
+    "nodemailer": "^7.0.5",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4",
+    "@tailwindcss/postcss": "^4.1.11",
     "@types/node": "^20.19.9",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.16",
     "eslint": "^9",
     "eslint-config-next": "15.4.4",
-    "tailwindcss": "^4",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.4.0",
     "tsx": "^4.20.3",
     "typescript": "^5"
   }

@@ -1,0 +1,16 @@
+{
+    "name": "NuKoken - Heerlijke Recepten",
+    "short_name": "NuKoken",
+    "description": "Ontdek heerlijke recepten voor elke gelegenheid",
+    "icons": [
+        {
+            "src": "/images/nukoken-logo.svg",
+            "sizes": "any",
+            "type": "image/svg+xml"
+        }
+    ],
+    "theme_color": "#f97316",
+    "background_color": "#ffffff",
+    "display": "standalone",
+    "start_url": "/"
+}

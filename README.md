@@ -1,36 +1,97 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🍳 NuKoken - Receptenwebsite
 
-## Getting Started
+Een moderne receptenwebsite gebouwd met Next.js 14, TypeScript en Vercel Postgres.
 
-First, run the development server:
+## ✨ Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Responsive Design** - Werkt perfect op alle apparaten
+- **Recipe Management** - Voeg, bewerk en verwijder recepten
+- **Category Filtering** - Filter op gerechten-categorie
+- **Search Functionality** - Zoek in titel, beschrijving en tags
+- **Admin Dashboard** - Beveiligd admin paneel
+- **Database Storage** - Postgres database via Vercel
+- **Fast Performance** - Server-side rendering en optimized images
+
+## 🚀 Quick Start
+
+1. **Development server starten:**
+   ```bash
+   npm run dev
+   ```
+
+2. **Database setup:**
+   - Maak Vercel Postgres database
+   - Run SQL uit `scripts/setup-database.sql`
+   - Update `.env.local` met je connection strings
+
+3. **Initiële data laden:**
+   ```bash
+   npm run db:migrate
+   ```
+
+4. **Deploy:**
+   ```bash
+   npx vercel
+   ```
+
+## 📁 Project Structuur
+
+```
+nukoken-website/
+├── app/                    # Next.js App Router
+│   ├── api/               # API routes
+│   ├── recepten/          # Recipe pages
+│   ├── admin/             # Admin dashboard
+│   └── page.tsx           # Homepage
+├── components/            # React components
+├── lib/                   # Database & utilities
+├── scripts/               # Database scripts
+└── public/                # Static assets
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠 Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Framework:** Next.js 14
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **Database:** Vercel Postgres
+- **Icons:** Lucide React
+- **Deployment:** Vercel
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🔐 Admin Access
 
-## Learn More
+- URL: `/admin`
+- Password: `nukoken2025`
 
-To learn more about Next.js, take a look at the following resources:
+## 📖 API Endpoints
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `GET /api/recipes` - Alle recepten
+- `POST /api/recipes` - Nieuw recept
+- `GET /api/recipes/[id]` - Specifiek recept
+- `PUT /api/recipes/[id]` - Update recept
+- `DELETE /api/recipes/[id]` - Verwijder recept
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🎨 Customization
 
-## Deploy on Vercel
+Pas de website aan door:
+- Kleuren te wijzigen in `tailwind.config.js`
+- Categorieën aan te passen in `lib/constants.ts`
+- Components te stylen in de respectieve bestanden
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🐛 Troubleshooting
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Database verbinding problemen:**
+- Check je `.env.local` variabelen
+- Verifieer je Vercel Postgres setup
+
+**Images laden niet:**
+- Check `next.config.js` image domains
+- Verifieer image URLs zijn geldig
+
+## 📞 Support
+
+Voor vragen of problemen, check de documentatie of maak een issue aan.
+
+---
+
+Gemaakt met ❤️ door NuKoken Team
