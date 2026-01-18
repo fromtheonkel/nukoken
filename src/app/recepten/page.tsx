@@ -9,20 +9,24 @@ export const metadata = {
   description: 'Ontdek heerlijke recepten voor elke gelegenheid'
 }
 
+interface SearchParams {
+  search?: string
+  category?: string
+  difficulty?: string
+  tag?: string
+  ingredient?: string
+  sort?: string
+  servings?: string
+  maxTime?: string
+}
+
 interface PageProps {
-  searchParams: { 
-    search?: string
-    category?: string
-    difficulty?: string
-    tag?: string
-    ingredient?: string
-    sort?: string
-    servings?: string
-    maxTime?: string
-  }
+  searchParams: Promise<SearchParams>
 }
 
 export default async function ReceptenPage({ searchParams }: PageProps) {
+  // Await searchParams (Next.js 15 requirement)
+  const params = await searchParams
   // Haal alle recepten op - we filteren client-side voor betere UX
   const allRecipes = await getAllRecipes()
   
@@ -40,9 +44,9 @@ export default async function ReceptenPage({ searchParams }: PageProps) {
         </div>
 
         {/* Search and Filters Component */}
-        <SearchAndFilters 
-          recipes={allRecipes} 
-          searchParams={searchParams}
+        <SearchAndFilters
+          recipes={allRecipes}
+          searchParams={params}
         />
       </main>
 
