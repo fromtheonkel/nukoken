@@ -6,40 +6,21 @@ import Footer from '@/components/Footer'
 import AdminAuth from '@/components/AdminAuth'
 import ImageUpload from '@/components/ImageUpload'
 import Link from 'next/link'
-
-const CATEGORIES = [
-  'Hoofdgerecht',
-  'Voorgerecht',
-  'Bijgerecht',
-  'Dessert',
-  'Snack',
-  'Soep',
-  'Salade',
-  'Ontbijt',
-  'Lunch',
-  'Drank',
-  'Overig'
-]
-
-const DIFFICULTIES = [
-  { value: 'makkelijk', label: 'Makkelijk' },
-  { value: 'gemiddeld', label: 'Gemiddeld' },
-  { value: 'moeilijk', label: 'Moeilijk' }
-]
+import { categories } from '@/lib/constants'
 
 export default function AdminPage() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     image_url: '',
-    category: 'Hoofdgerecht',
+    categories: [] as string[],
     prep_time: 15,
     cook_time: 30,
     servings: 4,
-    difficulty: 'gemiddeld',
     tags: '',
     ingredients: '',
     instructions: '',
+    serving_suggestions: '',
     is_popular: false
   })
 
@@ -58,11 +39,27 @@ export default function AdminPage() {
     }))
   }
 
+  const handleCategoryToggle = (categoryName: string) => {
+    setFormData(prev => ({
+      ...prev,
+      categories: prev.categories.includes(categoryName)
+        ? prev.categories.filter(c => c !== categoryName)
+        : [...prev.categories, categoryName]
+    }))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
     setMessage(null)
     setCreatedRecipe(null)
+
+    // Validatie: minimaal 1 categorie vereist
+    if (formData.categories.length === 0) {
+      setMessage({ type: 'error', text: 'Selecteer minimaal één categorie' })
+      setIsSubmitting(false)
+      return
+    }
 
     try {
       const response = await fetch('/api/recepten', {
@@ -83,14 +80,14 @@ export default function AdminPage() {
           title: '',
           description: '',
           image_url: '',
-          category: 'Hoofdgerecht',
+          categories: [],
           prep_time: 15,
           cook_time: 30,
           servings: 4,
-          difficulty: 'gemiddeld',
           tags: '',
           ingredients: '',
           instructions: '',
+          serving_suggestions: '',
           is_popular: false
         })
       } else {
@@ -188,41 +185,38 @@ export default function AdminPage() {
               />
             </div>
 
-            {/* Categorie en moeilijkheid */}
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-                  Categorie
-                </label>
-                <select
-                  id="category"
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                >
-                  {CATEGORIES.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
+            {/* Soort gerecht - Multi-select categorieën */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Soort gerecht * <span className="font-normal text-gray-500">(selecteer één of meer)</span>
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {categories.map(cat => (
+                  <button
+                    key={cat.name}
+                    type="button"
+                    onClick={() => handleCategoryToggle(cat.name)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors ${
+                      formData.categories.includes(cat.name)
+                        ? 'bg-teal-50 border-teal-500 text-teal-700'
+                        : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <span>{cat.icon}</span>
+                    <span>{cat.name}</span>
+                    {formData.categories.includes(cat.name) && (
+                      <svg className="w-4 h-4 ml-auto text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                  </button>
+                ))}
               </div>
-
-              <div>
-                <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700 mb-1">
-                  Moeilijkheid
-                </label>
-                <select
-                  id="difficulty"
-                  name="difficulty"
-                  value={formData.difficulty}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                >
-                  {DIFFICULTIES.map(diff => (
-                    <option key={diff.value} value={diff.value}>{diff.label}</option>
-                  ))}
-                </select>
-              </div>
+              {formData.categories.length > 0 && (
+                <p className="mt-2 text-sm text-gray-500">
+                  Geselecteerd: {formData.categories.join(', ')}
+                </p>
+              )}
             </div>
 
             {/* Tijden en porties */}
@@ -289,20 +283,34 @@ export default function AdminPage() {
               />
             </div>
 
-            {/* Ingrediënten */}
+            {/* Ingrediënten met subgroepen */}
             <div>
               <label htmlFor="ingredients" className="block text-sm font-medium text-gray-700 mb-1">
-                Ingrediënten * <span className="font-normal text-gray-500">(één per regel)</span>
+                Ingrediënten *
               </label>
+              <p className="text-sm text-gray-500 mb-2">
+                Eén ingrediënt per regel. Voor subgroepen (bijv. dressing, marinade) gebruik je [Groepnaam] op een aparte regel.
+              </p>
               <textarea
                 id="ingredients"
                 name="ingredients"
                 value={formData.ingredients}
                 onChange={handleChange}
                 required
-                rows={8}
+                rows={10}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 font-mono text-sm"
-                placeholder="500g kipfilet&#10;2 el sojasaus&#10;1 tl gember&#10;..."
+                placeholder={`500g kipfilet
+2 el sojasaus
+1 tl gember
+
+[Marinade]
+3 el sojasaus
+1 el sesamolie
+2 teentjes knoflook
+
+[Dressing]
+2 el mayonaise
+1 el sriracha`}
               />
             </div>
 
@@ -320,6 +328,22 @@ export default function AdminPage() {
                 rows={10}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 font-mono text-sm"
                 placeholder="Snijd de kip in stukken.&#10;Meng de marinade ingrediënten.&#10;Laat de kip 30 minuten marineren.&#10;..."
+              />
+            </div>
+
+            {/* Gerecht suggesties */}
+            <div>
+              <label htmlFor="serving_suggestions" className="block text-sm font-medium text-gray-700 mb-1">
+                Serveersuggesties <span className="font-normal text-gray-500">(optioneel)</span>
+              </label>
+              <textarea
+                id="serving_suggestions"
+                name="serving_suggestions"
+                value={formData.serving_suggestions}
+                onChange={handleChange}
+                rows={3}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                placeholder="Bijv. Lekker met rijst en een frisse salade. Garneer met sesamzaadjes en lente-ui."
               />
             </div>
 

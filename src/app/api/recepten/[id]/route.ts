@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { updateRecipe, getRecipeById, deleteRecipe, UpdateRecipeInput } from '@/lib/database'
+import { revalidatePath } from 'next/cache'
 
 export async function GET(
   request: NextRequest,
@@ -52,6 +53,11 @@ export async function PUT(
       return NextResponse.json({ error: 'Recept niet gevonden' }, { status: 404 })
     }
 
+    // Revalidate pages to show updated recipe immediately
+    revalidatePath('/recepten')
+    revalidatePath(`/recepten/${recipe.slug}`)
+    revalidatePath('/')
+
     return NextResponse.json({ success: true, recipe })
   } catch (error) {
     console.error('API Error updating recipe:', error)
@@ -79,6 +85,10 @@ export async function DELETE(
     if (!deleted) {
       return NextResponse.json({ error: 'Recept niet gevonden' }, { status: 404 })
     }
+
+    // Revalidate pages after deletion
+    revalidatePath('/recepten')
+    revalidatePath('/')
 
     return NextResponse.json({ success: true, message: 'Recept verwijderd' })
   } catch (error) {

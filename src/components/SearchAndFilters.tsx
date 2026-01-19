@@ -5,12 +5,11 @@ import { useState, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import RecipeCard from './RecipeCard'
 import { Recipe } from '@/types/recipe'
-import { categories, difficulties } from '@/lib/constants'
+import { categories } from '@/lib/constants'
 
 interface SearchParams {
   search?: string
   category?: string
-  difficulty?: string
   tag?: string
   ingredient?: string
   sort?: string
@@ -25,11 +24,10 @@ interface SearchAndFiltersProps {
 
 export default function SearchAndFilters({ recipes, searchParams }: SearchAndFiltersProps) {
   const router = useRouter()
-  
+
   // State voor filters
   const [searchTerm, setSearchTerm] = useState(searchParams.search || '')
   const [selectedCategory, setSelectedCategory] = useState(searchParams.category || '')
-  const [selectedDifficulty, setSelectedDifficulty] = useState(searchParams.difficulty || '')
   const [selectedTag, setSelectedTag] = useState(searchParams.tag || '')
   const [selectedIngredient, setSelectedIngredient] = useState(searchParams.ingredient || '')
   const [maxServings, setMaxServings] = useState(searchParams.servings || '')
@@ -54,6 +52,8 @@ export default function SearchAndFilters({ recipes, searchParams }: SearchAndFil
     recipes.forEach(recipe => {
       if (recipe.ingredients) {
         recipe.ingredients.split('\n').forEach(ingredient => {
+          // Skip subgroup headers like [Marinade]
+          if (ingredient.trim().match(/^\[.+\]$/)) return
           // Extract ingredient name (before first comma/space)
           const ingredientName = ingredient.trim().split(/[\d\s]/)[0].toLowerCase()
           if (ingredientName.length > 2) {
@@ -75,20 +75,21 @@ export default function SearchAndFilters({ recipes, searchParams }: SearchAndFil
         const matchesDescription = recipe.description.toLowerCase().includes(search)
         const matchesTags = recipe.tags?.toLowerCase().includes(search)
         const matchesIngredients = recipe.ingredients?.toLowerCase().includes(search)
-        
-        if (!matchesTitle && !matchesDescription && !matchesTags && !matchesIngredients) {
+        const matchesCategories = recipe.categories?.some(cat => cat.toLowerCase().includes(search))
+
+        if (!matchesTitle && !matchesDescription && !matchesTags && !matchesIngredients && !matchesCategories) {
           return false
         }
       }
 
-      // Category filter
-      if (selectedCategory && recipe.category.toLowerCase() !== selectedCategory.toLowerCase()) {
-        return false
-      }
-
-      // Difficulty filter
-      if (selectedDifficulty && recipe.difficulty.toLowerCase() !== selectedDifficulty.toLowerCase()) {
-        return false
+      // Category filter - check if any of recipe's categories matches
+      if (selectedCategory) {
+        const hasCategory = recipe.categories?.some(
+          cat => cat.toLowerCase() === selectedCategory.toLowerCase()
+        )
+        if (!hasCategory) {
+          return false
+        }
       }
 
       // Tag filter
@@ -142,15 +143,14 @@ export default function SearchAndFilters({ recipes, searchParams }: SearchAndFil
     })
 
     return filtered
-  }, [recipes, searchTerm, selectedCategory, selectedDifficulty, selectedTag, selectedIngredient, maxServings, maxTime, sortBy])
+  }, [recipes, searchTerm, selectedCategory, selectedTag, selectedIngredient, maxServings, maxTime, sortBy])
 
   // Update URL parameters
   const updateURL = useCallback(() => {
     const params = new URLSearchParams()
-    
+
     if (searchTerm) params.set('search', searchTerm)
     if (selectedCategory) params.set('category', selectedCategory)
-    if (selectedDifficulty) params.set('difficulty', selectedDifficulty)
     if (selectedTag) params.set('tag', selectedTag)
     if (selectedIngredient) params.set('ingredient', selectedIngredient)
     if (maxServings) params.set('servings', maxServings)
@@ -159,13 +159,12 @@ export default function SearchAndFilters({ recipes, searchParams }: SearchAndFil
 
     const newURL = params.toString() ? `?${params.toString()}` : '/recepten'
     router.push(newURL, { scroll: false })
-  }, [searchTerm, selectedCategory, selectedDifficulty, selectedTag, selectedIngredient, maxServings, maxTime, sortBy, router])
+  }, [searchTerm, selectedCategory, selectedTag, selectedIngredient, maxServings, maxTime, sortBy, router])
 
   // Clear all filters
   const clearFilters = () => {
     setSearchTerm('')
     setSelectedCategory('')
-    setSelectedDifficulty('')
     setSelectedTag('')
     setSelectedIngredient('')
     setMaxServings('')
@@ -174,7 +173,7 @@ export default function SearchAndFilters({ recipes, searchParams }: SearchAndFil
     router.push('/recepten')
   }
 
-  const hasActiveFilters = searchTerm || selectedCategory || selectedDifficulty || selectedTag || selectedIngredient || maxServings || maxTime
+  const hasActiveFilters = searchTerm || selectedCategory || selectedTag || selectedIngredient || maxServings || maxTime
 
   return (
     <div>
@@ -224,39 +223,20 @@ export default function SearchAndFilters({ recipes, searchParams }: SearchAndFil
               )}
             </div>
 
-            {/* Category Filter */}
+            {/* Category Filter - Soort gerecht */}
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Categorie
+                Soort gerecht
               </label>
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-orange-500"
               >
-                <option value="">Alle categorieën</option>
+                <option value="">Alle soorten</option>
                 {categories.map(category => (
                   <option key={category.name} value={category.name}>
                     {category.icon} {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Difficulty Filter */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Moeilijkheid
-              </label>
-              <select
-                value={selectedDifficulty}
-                onChange={(e) => setSelectedDifficulty(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-orange-500"
-              >
-                <option value="">Alle niveaus</option>
-                {difficulties.map(difficulty => (
-                  <option key={difficulty.name} value={difficulty.name}>
-                    {difficulty.name}
                   </option>
                 ))}
               </select>
@@ -375,7 +355,7 @@ export default function SearchAndFilters({ recipes, searchParams }: SearchAndFil
                 <span> voor &quot;{searchTerm}&quot;</span>
               )}
             </div>
-            
+
             <div className="flex items-center gap-2">
               <label htmlFor="sort" className="text-sm text-gray-600">
                 Sorteer op:
@@ -424,23 +404,23 @@ export default function SearchAndFilters({ recipes, searchParams }: SearchAndFil
                     </button>
                   </span>
                 )}
-                {selectedDifficulty && (
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-800">
-                    {selectedDifficulty}
-                    <button
-                      onClick={() => setSelectedDifficulty('')}
-                      className="ml-2 hover:text-yellow-900"
-                    >
-                      ×
-                    </button>
-                  </span>
-                )}
                 {maxTime && (
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
                     Max {maxTime} min
                     <button
                       onClick={() => setMaxTime('')}
                       className="ml-2 hover:text-green-900"
+                    >
+                      ×
+                    </button>
+                  </span>
+                )}
+                {selectedTag && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-purple-100 text-purple-800">
+                    Tag: {selectedTag}
+                    <button
+                      onClick={() => setSelectedTag('')}
+                      className="ml-2 hover:text-purple-900"
                     >
                       ×
                     </button>

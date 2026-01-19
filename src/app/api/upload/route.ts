@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile } from 'fs/promises'
-import { join } from 'path'
+import { put } from '@vercel/blob'
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,28 +34,20 @@ export async function POST(request: NextRequest) {
     const extension = file.name.split('.').pop()?.toLowerCase() || 'jpg'
     const filename = `recipe-${timestamp}-${randomString}.${extension}`
 
-    // Converteer naar buffer
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-
-    // Sla bestand op in public/uploads
-    const uploadDir = join(process.cwd(), 'public', 'uploads')
-    const filepath = join(uploadDir, filename)
-
-    await writeFile(filepath, buffer)
-
-    // Return de URL
-    const imageUrl = `/uploads/${filename}`
+    // Upload naar Vercel Blob
+    const blob = await put(filename, file, {
+      access: 'public',
+    })
 
     return NextResponse.json({
       success: true,
-      url: imageUrl,
+      url: blob.url,
       filename: filename
     })
   } catch (error) {
     console.error('Upload error:', error)
     return NextResponse.json(
-      { error: 'Er ging iets mis bij het uploaden' },
+      { error: 'Er ging iets mis bij het uploaden. Controleer of BLOB_READ_WRITE_TOKEN is ingesteld.' },
       { status: 500 }
     )
   }

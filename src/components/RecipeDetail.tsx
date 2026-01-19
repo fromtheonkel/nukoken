@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { categories } from '@/lib/constants'
 
 interface Recipe {
   id: number
@@ -10,18 +11,58 @@ interface Recipe {
   slug: string
   description: string
   image_url: string
-  category: string
+  categories: string[]
   prep_time: number
   cook_time: number
   servings: number
-  difficulty: string
   tags?: string
   ingredients?: string
   instructions?: string
+  serving_suggestions?: string
 }
 
 interface RecipeDetailProps {
   recipe: Recipe
+}
+
+interface IngredientGroup {
+  name: string | null
+  items: string[]
+}
+
+// Parse ingredients with subgroups (e.g., [Marinade], [Dressing])
+function parseIngredientsWithGroups(ingredientsText: string): IngredientGroup[] {
+  const lines = ingredientsText.split('\n').filter(Boolean)
+  const groups: IngredientGroup[] = []
+  let currentGroup: IngredientGroup = { name: null, items: [] }
+
+  for (const line of lines) {
+    const trimmedLine = line.trim()
+    // Check if this is a group header like [Marinade]
+    const groupMatch = trimmedLine.match(/^\[(.+)\]$/)
+    if (groupMatch) {
+      // Save the current group if it has items
+      if (currentGroup.items.length > 0) {
+        groups.push(currentGroup)
+      }
+      // Start a new group
+      currentGroup = { name: groupMatch[1], items: [] }
+    } else if (trimmedLine) {
+      currentGroup.items.push(trimmedLine)
+    }
+  }
+
+  // Don't forget the last group
+  if (currentGroup.items.length > 0) {
+    groups.push(currentGroup)
+  }
+
+  return groups
+}
+
+function getCategoryIcon(categoryName: string): string {
+  const category = categories.find(c => c.name.toLowerCase() === categoryName.toLowerCase())
+  return category?.icon || '🍽️'
 }
 
 export default function RecipeDetail({ recipe }: RecipeDetailProps) {
@@ -33,7 +74,7 @@ export default function RecipeDetail({ recipe }: RecipeDetailProps) {
   const baseServings = recipe.servings
   const multiplier = servings / baseServings
 
-  const ingredients = recipe.ingredients ? recipe.ingredients.split('\n').filter(Boolean) : []
+  const ingredientGroups = recipe.ingredients ? parseIngredientsWithGroups(recipe.ingredients) : []
   const instructions = recipe.instructions ? recipe.instructions.split('\n').filter(Boolean) : []
 
   // Functie om ingrediënt hoeveelheden aan te passen
@@ -141,9 +182,7 @@ export default function RecipeDetail({ recipe }: RecipeDetailProps) {
 
   // Korte intro tekst genereren
   const getIntroText = () => {
-    const difficultyText = recipe.difficulty === 'makkelijk' ? 'eenvoudige' :
-                          recipe.difficulty === 'gemiddeld' ? 'leuke' : 'uitdagende'
-    return `Wil je ${recipe.title.toLowerCase()} maken? Dit ${difficultyText} recept staat binnen ${totalTime} minuten op tafel en is perfect voor ${servings} personen. Eet smakelijk!`
+    return `Wil je ${recipe.title.toLowerCase()} maken? Dit recept staat binnen ${totalTime} minuten op tafel en is perfect voor ${servings} personen. Eet smakelijk!`
   }
 
   return (
@@ -188,14 +227,13 @@ export default function RecipeDetail({ recipe }: RecipeDetailProps) {
               )}
             </div>
 
-            {/* Tags */}
+            {/* Categorieën */}
             <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded text-xs font-medium">
-                {recipe.difficulty}
-              </span>
-              <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded text-xs font-medium">
-                {recipe.category}
-              </span>
+              {recipe.categories?.map((cat, index) => (
+                <span key={index} className="px-3 py-1 bg-orange-100 text-orange-700 rounded text-xs font-medium">
+                  {getCategoryIcon(cat)} {cat}
+                </span>
+              ))}
             </div>
           </div>
 
@@ -248,20 +286,31 @@ export default function RecipeDetail({ recipe }: RecipeDetailProps) {
                 </div>
               </div>
 
-              {/* Ingrediënten lijst */}
-              {ingredients.length > 0 ? (
-                <ul className="space-y-2">
-                  {ingredients.map((ingredient, index) => (
-                    <li key={index} className="flex items-start gap-2 pb-2 border-b border-gray-200 last:border-0 text-sm">
-                      <span className="text-teal-600 mt-0.5">
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      </span>
-                      <span className="text-gray-700">{adjustIngredient(ingredient)}</span>
-                    </li>
+              {/* Ingrediënten lijst met subgroepen */}
+              {ingredientGroups.length > 0 ? (
+                <div className="space-y-4">
+                  {ingredientGroups.map((group, groupIndex) => (
+                    <div key={groupIndex}>
+                      {group.name && (
+                        <h3 className="font-semibold text-gray-800 text-sm mb-2 mt-4 first:mt-0">
+                          {group.name}
+                        </h3>
+                      )}
+                      <ul className="space-y-2">
+                        {group.items.map((ingredient, index) => (
+                          <li key={index} className="flex items-start gap-2 pb-2 border-b border-gray-200 last:border-0 text-sm">
+                            <span className="text-teal-600 mt-0.5">
+                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            </span>
+                            <span className="text-gray-700">{adjustIngredient(ingredient)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   ))}
-                </ul>
+                </div>
               ) : (
                 <p className="text-gray-500 text-sm">Geen ingrediënten beschikbaar</p>
               )}
@@ -306,6 +355,16 @@ export default function RecipeDetail({ recipe }: RecipeDetailProps) {
               </ol>
             ) : (
               <p className="text-gray-500 text-sm">Geen bereidingswijze beschikbaar</p>
+            )}
+
+            {/* Serveersuggesties */}
+            {recipe.serving_suggestions && (
+              <div className="mt-8 p-4 bg-orange-50 rounded-lg border border-orange-100">
+                <h3 className="font-semibold text-orange-800 mb-2 flex items-center gap-2">
+                  <span>💡</span> Serveersuggesties
+                </h3>
+                <p className="text-orange-700 text-sm">{recipe.serving_suggestions}</p>
+              </div>
             )}
 
             {/* Tags */}
