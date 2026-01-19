@@ -50,7 +50,7 @@ export default async function HomePage() {
         Welkom bij NuKoken
       </h1>
       <p className="text-xl md:text-2xl mb-6 drop-shadow-md">
-        Voor streetfood toppers, klassiekers en gezonde, snelle maaltijden
+        Voor streetfood toppers, sourdough tips & trics, klassiekers, gezonde en snelle maaltijden
       </p>
       <Link 
         href="/recepten"
