@@ -106,7 +106,7 @@ export default function AdminPage() {
         <Header />
 
         <main className="max-w-3xl mx-auto px-4 py-8">
-        <div className="mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <Link
             href="/recepten"
             className="text-teal-600 hover:text-teal-700 font-medium inline-flex items-center text-sm"
@@ -115,6 +115,15 @@ export default function AdminPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
             Terug naar recepten
+          </Link>
+          <Link
+            href="/admin/blog"
+            className="px-4 py-2 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 font-medium inline-flex items-center text-sm transition-colors"
+          >
+            Sourdough Blog Admin
+            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
           </Link>
         </div>
 

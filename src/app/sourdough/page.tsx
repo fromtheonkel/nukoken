@@ -1,78 +1,55 @@
 import Header from '@/components/Header'
 import Link from 'next/link'
 import Image from 'next/image'
+import { getFeaturedBlogPosts } from '@/lib/blog-database'
+import { blogCategories } from '@/types/blog'
 
 export const metadata = {
   title: 'Sourdough by Coby - NuKoken',
   description: 'Alles over zuurdesem brood bakken: van starter tot perfecte broden. Tips, recepten en mijn sourdough avonturen.'
 }
 
-const categories = [
-  {
-    slug: 'starter-van-scratch',
-    title: 'Sourdough Starter van Scratch',
-    description: 'Leer hoe je je eigen zuurdesem starter maakt en onderhoudt. Van dag 1 tot een actieve, bubbelige starter.',
-    icon: '🧪',
-    color: 'bg-amber-50 border-amber-200',
-    iconBg: 'bg-amber-100',
-  },
-  {
-    slug: 'voor-beginners',
-    title: 'Voor Beginners',
-    description: 'Nieuw met zuurdesem? Start hier! Basis technieken, eerste broden en alles wat je moet weten om te beginnen.',
-    icon: '🌱',
-    color: 'bg-green-50 border-green-200',
-    iconBg: 'bg-green-100',
-  },
-  {
-    slug: 'tips-en-tricks',
-    title: 'Tips & Tricks',
-    description: 'Verbeter je bakkunsten met bewezen tips. Van de perfecte korst tot het ideale kruim.',
-    icon: '💡',
-    color: 'bg-blue-50 border-blue-200',
-    iconBg: 'bg-blue-100',
-  },
-  {
-    slug: 'recepten',
-    title: 'Sourdough Recepten',
-    description: 'Van klassiek boerenbrood tot focaccia, pizza en zoete broodjes. Recepten voor elk niveau.',
-    icon: '🍞',
-    color: 'bg-orange-50 border-orange-200',
-    iconBg: 'bg-orange-100',
-  },
-]
-
-const featuredPosts = [
+// Placeholder posts for when there are no real posts yet
+const placeholderPosts = [
   {
     slug: 'mijn-eerste-starter',
     title: 'Hoe ik mijn eerste starter maakte',
     excerpt: 'Het avontuur begon met meel, water en veel geduld. Dit is mijn verhaal van de eerste 14 dagen.',
-    category: 'Sourdough Starter van Scratch',
-    date: 'Binnenkort',
-    image: '/images/sourdough-placeholder.jpg',
+    category: 'starter-van-scratch',
     comingSoon: true,
   },
   {
     slug: 'basis-sourdough-brood',
     title: 'Je eerste sourdough brood',
     excerpt: 'Een simpel recept voor beginners. Stap voor stap naar je eerste zelfgebakken zuurdesem brood.',
-    category: 'Voor Beginners',
-    date: 'Binnenkort',
-    image: '/images/sourdough-placeholder.jpg',
+    category: 'voor-beginners',
     comingSoon: true,
   },
   {
     slug: 'open-kruim-tips',
     title: 'Hoe krijg je een open kruim?',
     excerpt: 'De geheimen achter die mooie grote gaten in je brood. Hydratatie, fermentatie en meer.',
-    category: 'Tips & Tricks',
-    date: 'Binnenkort',
-    image: '/images/sourdough-placeholder.jpg',
+    category: 'tips-en-tricks',
     comingSoon: true,
   },
 ]
 
-export default function SourdoughPage() {
+function getCategoryTitle(slug: string) {
+  return blogCategories.find(c => c.slug === slug)?.title || slug
+}
+
+export default async function SourdoughPage() {
+  // Fetch real featured posts from database
+  const featuredPosts = await getFeaturedBlogPosts()
+
+  // Use placeholder posts if no real posts exist
+  const postsToShow = featuredPosts.length > 0
+    ? featuredPosts.map(post => ({
+        ...post,
+        comingSoon: false,
+      }))
+    : placeholderPosts
+
   return (
     <div className="min-h-screen bg-[#faf9f7]">
       <Header />
@@ -119,7 +96,7 @@ export default function SourdoughPage() {
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-              {categories.map((category) => (
+              {blogCategories.map((category) => (
                 <Link
                   key={category.slug}
                   href={`/sourdough/${category.slug}`}
@@ -134,7 +111,10 @@ export default function SourdoughPage() {
                         {category.title}
                       </h3>
                       <p className="text-[#5a5a5a] text-sm leading-relaxed">
-                        {category.description}
+                        {category.slug === 'starter-van-scratch' && 'Leer hoe je je eigen zuurdesem starter maakt en onderhoudt. Van dag 1 tot een actieve, bubbelige starter.'}
+                        {category.slug === 'voor-beginners' && 'Nieuw met zuurdesem? Start hier! Basis technieken, eerste broden en alles wat je moet weten om te beginnen.'}
+                        {category.slug === 'tips-en-tricks' && 'Verbeter je bakkunsten met bewezen tips. Van de perfecte korst tot het ideale kruim.'}
+                        {category.slug === 'recepten' && 'Van klassiek boerenbrood tot focaccia, pizza en zoete broodjes. Recepten voor elk niveau.'}
                       </p>
                     </div>
                   </div>
@@ -145,7 +125,7 @@ export default function SourdoughPage() {
         </div>
       </section>
 
-      {/* Featured Posts / Coming Soon */}
+      {/* Featured Posts */}
       <section className="py-16 md:py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
@@ -154,19 +134,30 @@ export default function SourdoughPage() {
                 Laatste Artikelen
               </h2>
               <p className="text-[#5a5a5a] max-w-xl mx-auto">
-                Binnenkort verschijnen hier mijn eerste blog posts
+                {featuredPosts.length > 0
+                  ? 'Ontdek mijn nieuwste sourdough verhalen en recepten'
+                  : 'Binnenkort verschijnen hier mijn eerste blog posts'}
               </p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-8">
-              {featuredPosts.map((post) => (
+              {postsToShow.map((post) => (
                 <article
                   key={post.slug}
                   className="group bg-[#faf9f7] rounded-2xl overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300"
                 >
-                  {/* Image placeholder */}
+                  {/* Image */}
                   <div className="relative aspect-[4/3] bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center">
-                    <span className="text-6xl opacity-50">🍞</span>
+                    {'image_url' in post && post.image_url && typeof post.image_url === 'string' ? (
+                      <Image
+                        src={post.image_url}
+                        alt={post.title}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <span className="text-6xl opacity-50">🍞</span>
+                    )}
                     {post.comingSoon && (
                       <div className="absolute top-3 right-3 bg-amber-600 text-white text-xs font-medium px-3 py-1 rounded-full">
                         Binnenkort
@@ -176,14 +167,30 @@ export default function SourdoughPage() {
 
                   <div className="p-6">
                     <p className="text-amber-700 text-xs font-medium uppercase tracking-wider mb-2">
-                      {post.category}
+                      {getCategoryTitle(post.category)}
                     </p>
-                    <h3 className="text-lg font-serif font-bold text-[#232937] mb-2 group-hover:text-amber-700 transition-colors">
-                      {post.title}
-                    </h3>
-                    <p className="text-[#5a5a5a] text-sm leading-relaxed">
-                      {post.excerpt}
-                    </p>
+                    {post.comingSoon ? (
+                      <>
+                        <h3 className="text-lg font-serif font-bold text-[#232937] mb-2">
+                          {post.title}
+                        </h3>
+                        <p className="text-[#5a5a5a] text-sm leading-relaxed">
+                          {post.excerpt}
+                        </p>
+                      </>
+                    ) : (
+                      <Link href={`/sourdough/post/${post.slug}`}>
+                        <h3 className="text-lg font-serif font-bold text-[#232937] mb-2 group-hover:text-amber-700 transition-colors">
+                          {post.title}
+                        </h3>
+                        <p className="text-[#5a5a5a] text-sm leading-relaxed">
+                          {post.excerpt}
+                        </p>
+                        <span className="inline-block mt-3 text-amber-600 font-medium text-sm">
+                          Lees meer →
+                        </span>
+                      </Link>
+                    )}
                   </div>
                 </article>
               ))}
