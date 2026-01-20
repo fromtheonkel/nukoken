@@ -48,6 +48,7 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
             alt={recipe.title}
             fill
             className="object-cover"
+            unoptimized={recipe.image_url?.startsWith('http')}
           />
           <div className="absolute top-3 right-3 flex flex-wrap gap-1 max-w-[80%] justify-end">
             {recipe.categories?.slice(0, 2).map((cat, index) => (

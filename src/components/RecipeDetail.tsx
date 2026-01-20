@@ -245,6 +245,7 @@ export default function RecipeDetail({ recipe }: RecipeDetailProps) {
               fill
               className="object-cover"
               priority
+              unoptimized={recipe.image_url?.startsWith('http')}
             />
           </div>
         </div>
